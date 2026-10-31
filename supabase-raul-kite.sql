@@ -35,3 +35,29 @@ alter table public.raul_kite_lessons
 create unique index if not exists raul_kite_lessons_owner_slot_unique
  on public.raul_kite_lessons(owner_id, lesson_date, lesson_time)
  where status <> 'cancelada';
+
+
+-- Cadastro independente de alunos. Migração incremental; preserva aulas existentes.
+create table if not exists public.raul_kite_students (
+  id uuid primary key default gen_random_uuid(),
+  owner_id uuid not null references auth.users(id) on delete cascade,
+  full_name text not null check (length(trim(full_name)) > 0),
+  phone text,
+  email text,
+  experience_level text,
+  notes text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+alter table public.raul_kite_students enable row level security;
+drop policy if exists "Raul gerencia somente seus alunos" on public.raul_kite_students;
+create policy "Raul gerencia somente seus alunos" on public.raul_kite_students
+for all to authenticated using ((select auth.uid()) = owner_id)
+with check ((select auth.uid()) = owner_id);
+grant select, insert, update, delete on public.raul_kite_students to authenticated;
+create unique index if not exists raul_kite_students_owner_phone_unique
+on public.raul_kite_students(owner_id, regexp_replace(coalesce(phone,''), '\\D', '', 'g'))
+where nullif(regexp_replace(coalesce(phone,''), '\\D', '', 'g'),'') is not null;
+alter table public.raul_kite_lessons add column if not exists student_id uuid
+references public.raul_kite_students(id) on delete set null;
+grant select, insert, update, delete on public.raul_kite_lessons to authenticated;

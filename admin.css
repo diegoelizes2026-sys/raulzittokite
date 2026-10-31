@@ -121,3 +121,7 @@ body{min-width:320px;overflow-x:hidden}
 @media(max-height:760px) and (max-width:600px){.login-hero{height:190px;min-height:190px}.login-card{margin-top:-42px;padding-top:22px;padding-bottom:18px}.login-card .login-eyebrow{margin-bottom:9px}.login-intro{margin:7px 0 16px}.login-field{margin-bottom:12px}.login-card .input-wrap input{height:51px}.login-card .login-submit{min-height:52px}.login-divider{margin:11px 0 3px}.login-footer{min-height:70px;padding-top:38px}}
 @media(max-width:360px){.login-card{width:calc(100% - 22px);padding:22px 17px;border-radius:22px}.login-card h1{font-size:28px}.login-logo{max-width:180px}.login-footer p{font-size:7px;letter-spacing:.13em}}
 @media(prefers-reduced-motion:reduce){.login-card{animation:none}.login-submit,.input-wrap{transition:none}}
+
+/* Login ocupa toda a viewport; o shell administrativo mantém o espaçamento original. */
+.shell:has(#loginView:not([hidden])){max-width:none;width:100%;padding:0}
+.login-screen{width:100%;max-width:none}

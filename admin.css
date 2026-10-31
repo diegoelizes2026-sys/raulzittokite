@@ -68,3 +68,7 @@ body{min-width:320px;overflow-x:hidden}
 @media(min-width:761px){
  .app-nav{display:none!important}
 }
+
+/* Navegação por telas e cadastro independente de alunos */
+.screen[hidden]{display:none!important}.screen{min-width:0}.page-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:24px 0 16px}.page-heading h1{margin:0;font-size:28px}.student-form,.student-profile{max-width:650px;background:#fff;border:1px solid #e1e8e4;border-radius:14px;padding:18px}.student-form input,.student-form select,.student-form textarea{font-size:16px;min-height:48px}.student-profile h2{margin-top:0}.profile-actions{display:flex;gap:10px;margin:16px 0}.profile-actions a{padding:12px 15px;border:1px solid #dce5e0;border-radius:9px;color:#087e69;text-decoration:none}.student-card{cursor:pointer}.app-nav a.active{color:#087e69;background:#eaf7f2}
+@media(max-width:760px){.page-heading{align-items:flex-start}.page-heading h1{font-size:25px}.student-form,.student-profile{padding:14px}.profile-actions{flex-wrap:wrap}.app-nav{grid-template-columns:repeat(4,minmax(0,1fr))}}

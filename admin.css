@@ -9,3 +9,62 @@
 @media(max-width:760px){.shell{padding-top:calc(14px + env(safe-area-inset-top))}.calendar-section{padding:15px 11px}.calendar-head{align-items:flex-start}.calendar-controls{width:100%;display:grid;grid-template-columns:40px 1fr 40px;gap:6px}.calendar-controls .view-switch{grid-column:1/-1;justify-content:stretch}.view-switch button{flex:1;min-height:40px}.calendar-grid{gap:3px;margin-top:12px}.day-cell{min-height:66px;padding:5px 4px;border-radius:7px;gap:4px}.day-cell.selected{padding:4px 3px}.day-cell>span{font-size:12px}.day-cell small{font-size:8px;line-height:1.1}.day-cell em{display:none}.calendar-grid.week .day-cell{min-height:78px}.weekday{font-size:9px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.stats article:last-child{grid-column:1/-1}.topbar{padding-bottom:16px}.topbar .muted{font-size:12px}.welcome{padding:22px 0 16px}.welcome .primary{width:100%}.schedule-section{padding:15px 11px}.time-grid{grid-template-columns:1fr}.time-slot{min-height:64px}.agenda-head{gap:8px}.date-label{width:100%}.date-label input{min-height:46px}.students-section .agenda-head{align-items:flex-start;flex-direction:column}.students-section .total-label{white-space:normal}.table-wrap{margin-left:-2px;margin-right:-2px}.actions{flex-wrap:wrap}.actions button{min-height:38px}.login-card{margin-top:4vh}.dialog-head{position:sticky;top:-20px;background:white;padding:3px 0 12px;z-index:2}.submit-wide{position:sticky;bottom:0;box-shadow:0 -8px 16px #ffffffd9;padding:15px}.optional-fields textarea{min-height:64px}}
 @media(max-width:380px){.shell{padding-left:9px;padding-right:9px}.stats article{padding:11px 8px}.stats small{font-size:8px}.day-cell{min-height:60px}.day-cell small{font-size:7px}.calendar-controls .outline{padding:7px}.time-label{min-width:46px;font-size:15px}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+
+/* Mobile-first polish: compact login, safe-area and authenticated app navigation */
+html{scroll-behavior:smooth;scroll-padding-top:18px}
+body{min-width:320px;overflow-x:hidden}
+.shell{width:min(100%,1204px);padding-left:clamp(12px,3vw,24px);padding-right:clamp(12px,3vw,24px)}
+.login-card{width:min(100%,420px);margin:clamp(18px,7vh,64px) auto;padding:clamp(22px,5vw,34px)}
+.login-card .eyebrow{margin:24px 0 9px}
+.login-card h1{font-size:clamp(26px,6vw,34px);line-height:1.12}
+.login-card form{margin-top:20px}
+.login-card label{margin:13px 0}
+.login-card input{min-height:48px;font-size:16px}
+.login-card .primary{min-height:48px;margin-top:8px}
+.back{margin-top:16px;padding:8px 0}
+.app-nav{display:none}
+.agenda[id],.topbar[id]{scroll-margin-top:16px}
+@media(max-width:760px){
+ body{padding-bottom:calc(76px + env(safe-area-inset-bottom))}
+ .shell{padding:calc(12px + env(safe-area-inset-top)) 12px calc(22px + env(safe-area-inset-bottom))}
+ .login-card{margin:clamp(12px,4vh,32px) auto;padding:23px 18px;border-radius:16px}
+ .login-card .eyebrow{margin-top:20px}
+ .login-card form{margin-top:18px}
+ .login-card label{font-size:13px}
+ .login-card input{font-size:16px;min-height:48px}
+ .login-card .back{margin-top:14px}
+ .topbar{align-items:center}
+ .topbar .brand{font-size:16px}
+ .top-actions{gap:6px}
+ .top-actions .outline{padding:9px 11px;min-height:40px}
+ .app-nav{position:fixed;z-index:30;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:3px;padding:8px 10px calc(8px + env(safe-area-inset-bottom));background:rgba(255,255,255,.97);border-top:1px solid #dce5e0;box-shadow:0 -8px 24px #14201d0d;backdrop-filter:blur(14px)}
+ .app-nav a{min-width:0;min-height:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;text-decoration:none;color:#728078;border-radius:9px}
+ .app-nav a span{font-size:19px;line-height:1}
+ .app-nav a small{font-size:10px;font-weight:800}
+ .app-nav a.active{color:#087e69;background:#eaf7f2}
+ .welcome{padding-top:20px}
+ .welcome h1{font-size:clamp(27px,7vw,34px)}
+ .stats{gap:8px}
+ .stats article{min-height:84px}
+ .calendar-head{gap:10px}
+ .calendar-controls{grid-template-columns:40px minmax(60px,1fr) 40px}
+ .calendar-grid{grid-template-columns:repeat(7,minmax(0,1fr))}
+ .day-cell{overflow:hidden}
+ .agenda{scroll-margin-top:12px}
+ dialog{width:calc(100% - 16px);max-width:560px;max-height:calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 18px);margin:auto}
+ dialog form{padding:18px 14px calc(18px + env(safe-area-inset-bottom))}
+ dialog label{font-size:13px}
+ dialog input,dialog select,dialog textarea{font-size:16px;min-height:46px}
+ .submit-wide{position:static}
+ .table-wrap{max-width:100%}
+}
+@media(max-height:620px) and (max-width:760px){
+ .login-card{margin:8px auto;padding:18px}
+ .login-card .eyebrow{margin:12px 0 7px}
+ .login-card form{margin-top:12px}
+ .login-card label{margin:9px 0}
+ .login-card .back{margin-top:8px}
+}
+@media(min-width:761px){
+ .app-nav{display:none!important}
+}

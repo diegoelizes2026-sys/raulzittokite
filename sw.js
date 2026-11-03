@@ -1,4 +1,4 @@
-const CACHE = 'raulzito-kite-shell-v6';
+const CACHE = 'raulzito-kite-shell-v7';
 const SHELL = ['/admin.html','/admin.css','/admin.js','/admin-config.js','/admin-alunos.html','/admin-alunos.css','/admin-alunos.js','/aluno.html','/aluno.css','/aluno.js','/aluno-config.js','/manifest.webmanifest','/manifest-aluno.webmanifest','/assets/pwa-192.png','/assets/pwa-512.png'];
 self.addEventListener('install', event => { event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(SHELL))); self.skipWaiting(); });
 self.addEventListener('activate', event => { event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key !== CACHE).map(key => caches.delete(key))))); self.clients.claim(); });

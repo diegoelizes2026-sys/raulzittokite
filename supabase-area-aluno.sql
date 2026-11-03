@@ -232,3 +232,72 @@ grant select,insert,update,delete on public.raul_kite_lessons to authenticated;
 grant select,insert,update,delete on public.raul_kite_students to authenticated;
 
 commit;
+
+-- Configuração de disponibilidade editável no painel do instrutor.
+create table if not exists public.raul_kite_booking_settings (
+ owner_id uuid primary key references auth.users(id) on delete cascade,
+ weekdays smallint[] not null default array[1,2,3,4,5,6,7]::smallint[],
+ start_time time not null default time '07:00', end_time time not null default time '18:00',
+ interval_minutes integer not null default 60 check(interval_minutes between 15 and 240),
+ max_advance_days integer not null default 60 check(max_advance_days between 1 and 365),
+ updated_at timestamptz not null default now(),
+ constraint raul_kite_booking_settings_valid_hours check(end_time>start_time),
+ constraint raul_kite_booking_settings_valid_weekdays check(array_length(weekdays,1) between 1 and 7 and weekdays <@ array[1,2,3,4,5,6,7]::smallint[])
+);
+alter table public.raul_kite_booking_settings enable row level security;
+drop policy if exists "Raul manages kite booking settings" on public.raul_kite_booking_settings;
+create policy "Raul manages kite booking settings" on public.raul_kite_booking_settings for all to authenticated
+ using(auth.uid()=owner_id and owner_id='0c997ebb-4ac2-4879-9b70-ae410581dea8'::uuid)
+ with check(auth.uid()=owner_id and owner_id='0c997ebb-4ac2-4879-9b70-ae410581dea8'::uuid);
+drop policy if exists "Students read kite booking settings" on public.raul_kite_booking_settings;
+create policy "Students read kite booking settings" on public.raul_kite_booking_settings for select to authenticated
+ using(owner_id='0c997ebb-4ac2-4879-9b70-ae410581dea8'::uuid and exists(select 1 from public.raul_kite_students s where s.auth_user_id=auth.uid() and s.owner_id=raul_kite_booking_settings.owner_id));
+grant select,insert,update,delete on public.raul_kite_booking_settings to authenticated;
+insert into public.raul_kite_booking_settings(owner_id) values('0c997ebb-4ac2-4879-9b70-ae410581dea8'::uuid) on conflict(owner_id) do nothing;
+
+create or replace function public.raul_kite_available_slots(p_date date,p_duration_minutes integer default 60)
+returns table(slot time) language plpgsql stable security definer set search_path=public,pg_temp as $
+declare cfg public.raul_kite_booking_settings%rowtype; step integer;
+begin
+ if auth.uid() is null or not exists(select 1 from public.raul_kite_students s where s.auth_user_id=auth.uid() and s.owner_id='0c997ebb-4ac2-4879-9b70-ae410581dea8'::uuid) then raise exception 'Acesso restrito a alunos cadastrados.'; end if;
+ if p_date<current_date or p_duration_minutes not between 30 and 240 then raise exception 'Data ou duração inválida.'; end if;
+ select * into cfg from public.raul_kite_booking_settings where owner_id='0c997ebb-4ac2-4879-9b70-ae410581dea8'::uuid;
+ if not found then raise exception 'A disponibilidade ainda não foi configurada pelo instrutor.'; end if;
+ if p_date>current_date+cfg.max_advance_days or extract(isodow from p_date)::smallint<>all(cfg.weekdays) then return; end if;
+ step:=cfg.interval_minutes;
+ return query select t.slot::time
+ from generate_series(0,ceil(extract(epoch from (cfg.end_time-cfg.start_time))/60/step)::integer) as g(n)
+ cross join lateral(select (cfg.start_time+make_interval(mins=>g.n*step))::time as slot) t
+ where t.slot+make_interval(mins=>p_duration_minutes)<=cfg.end_time
+  and (p_date>current_date or t.slot>localtime)
+  and not exists(select 1 from public.raul_kite_lessons l where l.owner_id=cfg.owner_id and l.status<>'cancelada'
+   and l.lesson_slot && tsrange(p_date+t.slot,p_date+t.slot+make_interval(mins=>p_duration_minutes),'[)'))
+ order by t.slot;
+end $;
+revoke all on function public.raul_kite_available_slots(date,integer) from public,anon;
+grant execute on function public.raul_kite_available_slots(date,integer) to authenticated;
+
+create or replace function public.raul_kite_guard_student_booking()
+returns trigger language plpgsql security definer set search_path=public,pg_temp as $
+declare st public.raul_kite_students%rowtype; lt public.raul_kite_lesson_types%rowtype; cfg public.raul_kite_booking_settings%rowtype;
+begin
+ if auth.uid()=new.owner_id then return new; end if;
+ if new.owner_id<>'0c997ebb-4ac2-4879-9b70-ae410581dea8'::uuid then raise exception 'Instrutor inválido.'; end if;
+ select * into st from public.raul_kite_students where id=new.student_id and auth_user_id=auth.uid() and owner_id=new.owner_id;
+ if not found then raise exception 'Perfil de aluno não encontrado.'; end if;
+ select * into lt from public.raul_kite_lesson_types where name=new.lesson_type and owner_id=new.owner_id and is_active;
+ if not found then raise exception 'Tipo de aula indisponível.'; end if;
+ select * into cfg from public.raul_kite_booking_settings where owner_id=new.owner_id;
+ if not found then raise exception 'Disponibilidade não configurada.'; end if;
+ if new.lesson_date<current_date or new.lesson_date>current_date+cfg.max_advance_days
+  or extract(isodow from new.lesson_date)::smallint<>all(cfg.weekdays)
+  or new.lesson_time<cfg.start_time or new.lesson_time+make_interval(mins=>lt.duration_minutes)>cfg.end_time
+  or mod(extract(epoch from (new.lesson_time-cfg.start_time))::integer/60,cfg.interval_minutes)<>0
+  or (new.lesson_date=current_date and new.lesson_time<=localtime) then
+  raise exception 'Data ou horário fora da disponibilidade configurada.';
+ end if;
+ new.student_name:=st.full_name;new.student_phone:=st.phone;new.student_locality:=st.locality;
+ new.student_level:=coalesce(st.experience_level,'iniciante');new.duration_minutes:=lt.duration_minutes;
+ new.status:='agendada';new.payment_status:='pendente';new.amount:=null;new.group_size:=1;new.student_booking:=true;return new;
+end $;
+revoke all on function public.raul_kite_guard_student_booking() from public,anon,authenticated;

@@ -79,7 +79,7 @@ drop policy if exists "Raul manages kite lesson packages" on public.raul_kite_le
 create policy "Raul manages kite lesson packages" on public.raul_kite_lesson_packages for all to authenticated
  using(auth.uid()=owner_id and owner_id='0c997ebb-4ac2-4879-9b70-ae410581dea8'::uuid)
  with check(auth.uid()=owner_id and owner_id='0c997ebb-4ac2-4879-9b70-ae410581dea8'::uuid);
-drop policy if exists "Students read active kite packages" on public.raul_kite_lessons;
+drop policy if exists "Students read active kite packages" on public.raul_kite_lesson_packages;
 create policy "Students read active kite packages" on public.raul_kite_lesson_packages for select to authenticated
  using(is_active and owner_id='0c997ebb-4ac2-4879-9b70-ae410581dea8'::uuid and exists(select 1 from public.raul_kite_students s where s.auth_user_id=auth.uid() and s.owner_id=public.raul_kite_lesson_packages.owner_id));
 
@@ -106,7 +106,7 @@ drop policy if exists "Raul manages kite progress" on public.raul_kite_student_p
 create policy "Raul manages kite progress" on public.raul_kite_student_progress for all to authenticated
  using(auth.uid()=owner_id and owner_id='0c997ebb-4ac2-4879-9b70-ae410581dea8'::uuid)
  with check(auth.uid()=owner_id and owner_id='0c997ebb-4ac2-4879-9b70-ae410581dea8'::uuid);
-drop policy if exists "Students view published progress" on public.raul_kite_lessons;
+drop policy if exists "Students view published progress" on public.raul_kite_student_progress;
 create policy "Students view published progress" on public.raul_kite_student_progress for select to authenticated
  using(is_visible and exists(select 1 from public.raul_kite_students s where s.id=student_id and s.auth_user_id=auth.uid()));
 drop policy if exists "Raul manages kite tips" on public.raul_kite_student_tips;

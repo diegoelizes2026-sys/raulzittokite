@@ -67,48 +67,65 @@ alter table public.raul_kite_student_progress enable row level security;
 alter table public.raul_kite_student_tips enable row level security;
 
 -- Instructor access, scoped to the already-existing Raul Auth user.
+drop policy if exists "Raul manages kite lesson types" on public.raul_kite_lesson_types;
 create policy "Raul manages kite lesson types" on public.raul_kite_lesson_types for all to authenticated
  using(auth.uid()=owner_id and owner_id='0c997ebb-4ac2-4879-9b70-ae410581dea8'::uuid)
  with check(auth.uid()=owner_id and owner_id='0c997ebb-4ac2-4879-9b70-ae410581dea8'::uuid);
+drop policy if exists "Students read active kite lesson types" on public.raul_kite_lesson_types;
 create policy "Students read active kite lesson types" on public.raul_kite_lesson_types for select to authenticated
  using(is_active and owner_id='0c997ebb-4ac2-4879-9b70-ae410581dea8'::uuid and exists(select 1 from public.raul_kite_students s where s.auth_user_id=auth.uid() and s.owner_id=public.raul_kite_lesson_types.owner_id));
 
+drop policy if exists "Raul manages kite lesson packages" on public.raul_kite_lesson_packages;
 create policy "Raul manages kite lesson packages" on public.raul_kite_lesson_packages for all to authenticated
  using(auth.uid()=owner_id and owner_id='0c997ebb-4ac2-4879-9b70-ae410581dea8'::uuid)
  with check(auth.uid()=owner_id and owner_id='0c997ebb-4ac2-4879-9b70-ae410581dea8'::uuid);
+drop policy if exists "Students read active kite packages" on public.raul_kite_lessons;
 create policy "Students read active kite packages" on public.raul_kite_lesson_packages for select to authenticated
  using(is_active and owner_id='0c997ebb-4ac2-4879-9b70-ae410581dea8'::uuid and exists(select 1 from public.raul_kite_students s where s.auth_user_id=auth.uid() and s.owner_id=public.raul_kite_lesson_packages.owner_id));
 
+drop policy if exists "Raul manages kite purchases" on public.raul_kite_student_purchases;
 create policy "Raul manages kite purchases" on public.raul_kite_student_purchases for all to authenticated
  using(auth.uid()=owner_id and owner_id='0c997ebb-4ac2-4879-9b70-ae410581dea8'::uuid)
  with check(auth.uid()=owner_id and owner_id='0c997ebb-4ac2-4879-9b70-ae410581dea8'::uuid);
+drop policy if exists "Students view own kite purchases" on public.raul_kite_student_purchases;
 create policy "Students view own kite purchases" on public.raul_kite_student_purchases for select to authenticated
  using(exists(select 1 from public.raul_kite_students s where s.id=student_id and s.auth_user_id=auth.uid()));
+drop policy if exists "Students request own kite purchases" on public.raul_kite_student_purchases;
 create policy "Students request own kite purchases" on public.raul_kite_student_purchases for insert to authenticated
  with check(owner_id='0c997ebb-4ac2-4879-9b70-ae410581dea8'::uuid and status='pending' and payment_status='pending'
  and exists(select 1 from public.raul_kite_students s where s.id=student_id and s.auth_user_id=auth.uid() and s.owner_id=public.raul_kite_student_purchases.owner_id)
  and exists(select 1 from public.raul_kite_lesson_packages p where p.id=package_id and p.owner_id=public.raul_kite_student_purchases.owner_id and p.is_active and p.lesson_count=lessons_quantity and p.price=amount and p.name=package_name));
 
+drop policy if exists "Raul manages kite credits" on public.raul_kite_student_credits;
 create policy "Raul manages kite credits" on public.raul_kite_student_credits for select to authenticated
  using(auth.uid()=owner_id and owner_id='0c997ebb-4ac2-4879-9b70-ae410581dea8'::uuid);
+drop policy if exists "Students view own kite credits" on public.raul_kite_student_credits;
 create policy "Students view own kite credits" on public.raul_kite_student_credits for select to authenticated
  using(exists(select 1 from public.raul_kite_students s where s.id=student_id and s.auth_user_id=auth.uid()));
+drop policy if exists "Raul manages kite progress" on public.raul_kite_student_progress;
 create policy "Raul manages kite progress" on public.raul_kite_student_progress for all to authenticated
  using(auth.uid()=owner_id and owner_id='0c997ebb-4ac2-4879-9b70-ae410581dea8'::uuid)
  with check(auth.uid()=owner_id and owner_id='0c997ebb-4ac2-4879-9b70-ae410581dea8'::uuid);
+drop policy if exists "Students view published progress" on public.raul_kite_lessons;
 create policy "Students view published progress" on public.raul_kite_student_progress for select to authenticated
  using(is_visible and exists(select 1 from public.raul_kite_students s where s.id=student_id and s.auth_user_id=auth.uid()));
+drop policy if exists "Raul manages kite tips" on public.raul_kite_student_tips;
 create policy "Raul manages kite tips" on public.raul_kite_student_tips for all to authenticated
  using(auth.uid()=owner_id and owner_id='0c997ebb-4ac2-4879-9b70-ae410581dea8'::uuid)
  with check(auth.uid()=owner_id and owner_id='0c997ebb-4ac2-4879-9b70-ae410581dea8'::uuid);
+drop policy if exists "Students read published kite tips" on public.raul_kite_student_tips;
 create policy "Students read published kite tips" on public.raul_kite_student_tips for select to authenticated
  using(is_published and owner_id='0c997ebb-4ac2-4879-9b70-ae410581dea8'::uuid and exists(select 1 from public.raul_kite_students s where s.auth_user_id=auth.uid() and s.owner_id=public.raul_kite_student_tips.owner_id));
 
+drop policy if exists "Students read own kite profile" on public.raul_kite_students;
 create policy "Students read own kite profile" on public.raul_kite_students for select to authenticated using(auth_user_id=auth.uid());
+drop policy if exists "Students update own kite profile" on public.raul_kite_students;
 create policy "Students update own kite profile" on public.raul_kite_students for update to authenticated using(auth_user_id=auth.uid())
  with check(auth_user_id=auth.uid() and owner_id='0c997ebb-4ac2-4879-9b70-ae410581dea8'::uuid);
+drop policy if exists "Students read own kite lessons" on public.raul_kite_lessons;
 create policy "Students read own kite lessons" on public.raul_kite_lessons for select to authenticated
  using(exists(select 1 from public.raul_kite_students s where s.id=student_id and s.auth_user_id=auth.uid()));
+drop policy if exists "Students create own kite bookings" on public.raul_kite_lessons;
 create policy "Students create own kite bookings" on public.raul_kite_lessons for insert to authenticated
  with check(owner_id='0c997ebb-4ac2-4879-9b70-ae410581dea8'::uuid and status='agendada' and student_booking=true
  and exists(select 1 from public.raul_kite_students s where s.id=student_id and s.auth_user_id=auth.uid() and s.owner_id=public.raul_kite_lessons.owner_id));
@@ -126,6 +143,7 @@ begin
  return new;
 end $$;
 revoke all on function public.raul_kite_guard_student_profile() from public,anon,authenticated;
+drop trigger if exists raul_kite_guard_student_profile on public.raul_kite_students;
 create trigger raul_kite_guard_student_profile before insert or update or delete on public.raul_kite_students for each row execute function public.raul_kite_guard_student_profile();
 
 create or replace function public.raul_kite_guard_student_booking() returns trigger language plpgsql security definer set search_path=public,pg_temp as $$
@@ -142,6 +160,7 @@ begin
  new.status:='agendada';new.payment_status:='pendente';new.amount:=null;new.group_size:=1;new.student_booking:=true;return new;
 end $$;
 revoke all on function public.raul_kite_guard_student_booking() from public,anon,authenticated;
+drop trigger if exists raul_kite_guard_student_booking on public.raul_kite_lessons;
 create trigger raul_kite_guard_student_booking before insert on public.raul_kite_lessons for each row execute function public.raul_kite_guard_student_booking();
 
 create or replace function public.raul_kite_available_slots(p_date date,p_duration_minutes integer default 60)
@@ -166,6 +185,7 @@ begin
  end if;return new;
 end $$;
 revoke all on function public.raul_kite_grant_purchase_credits() from public,anon,authenticated;
+drop trigger if exists raul_kite_purchase_credit_trigger on public.raul_kite_student_purchases;
 create trigger raul_kite_purchase_credit_trigger before update on public.raul_kite_student_purchases for each row execute function public.raul_kite_grant_purchase_credits();
 
 create or replace function public.raul_kite_debit_completed_lesson() returns trigger language plpgsql security definer set search_path=public,pg_temp as $$
@@ -178,6 +198,7 @@ begin
  end if;return new;
 end $$;
 revoke all on function public.raul_kite_debit_completed_lesson() from public,anon,authenticated;
+drop trigger if exists raul_kite_lesson_credit_trigger on public.raul_kite_lessons;
 create trigger raul_kite_lesson_credit_trigger after update of status on public.raul_kite_lessons for each row execute function public.raul_kite_debit_completed_lesson();
 
 create or replace function public.raul_kite_create_student_profile() returns trigger language plpgsql security definer set search_path=public,auth,pg_temp as $$
@@ -196,6 +217,7 @@ begin
  end if;return new;
 end $$;
 revoke all on function public.raul_kite_create_student_profile() from public,anon,authenticated;
+drop trigger if exists raul_kite_auth_user_profile on auth.users;
 create trigger raul_kite_auth_user_profile after insert on auth.users for each row execute function public.raul_kite_create_student_profile();
 
 grant select,insert,update,delete on public.raul_kite_lesson_types to authenticated;

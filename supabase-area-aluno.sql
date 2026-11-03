@@ -155,6 +155,7 @@ begin
  if not found then raise exception 'Perfil de aluno não encontrado.'; end if;
  select * into lt from public.raul_kite_lesson_types where name=new.lesson_type and owner_id=new.owner_id and is_active;
  if not found then raise exception 'Tipo de aula indisponível.'; end if;
+ if new.lesson_date<current_date or new.lesson_time<time '07:00' or new.lesson_time>time '18:00' or extract(minute from new.lesson_time)<>0 then raise exception 'Data ou horário fora da disponibilidade.'; end if;
  new.student_name:=st.full_name;new.student_phone:=st.phone;new.student_locality:=st.locality;
  new.student_level:=coalesce(st.experience_level,'iniciante');new.duration_minutes:=lt.duration_minutes;
  new.status:='agendada';new.payment_status:='pendente';new.amount:=null;new.group_size:=1;new.student_booking:=true;return new;

@@ -168,8 +168,8 @@ returns table(slot time) language plpgsql stable security definer set search_pat
 begin
  if auth.uid() is null or not exists(select 1 from public.raul_kite_students s where s.auth_user_id=auth.uid() and s.owner_id='0c997ebb-4ac2-4879-9b70-ae410581dea8'::uuid) then raise exception 'Acesso restrito a alunos cadastrados.'; end if;
  if p_date<current_date or p_duration_minutes not between 30 and 240 then raise exception 'Data ou duração inválida.'; end if;
- return query select t.slot::time from generate_series(0,11) n
- cross join lateral(select (time '07:00'+make_interval(mins=>n*60))::time as slot) t
+ return query select t.slot::time from generate_series(0,11) as g(n)
+ cross join lateral(select (time '07:00'+make_interval(mins=>g.n*60))::time as slot) t
  where not exists(select 1 from public.raul_kite_lessons l where l.owner_id='0c997ebb-4ac2-4879-9b70-ae410581dea8'::uuid and l.status<>'cancelada'
  and l.lesson_slot && tsrange(p_date+t.slot,p_date+t.slot+make_interval(mins=>p_duration_minutes),'[)')) order by t.slot;
 end $$;

@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#087f73"><meta name="robots" content="noindex,nofollow">
+<link rel="manifest" href="/manifest.webmanifest"><link rel="apple-touch-icon" href="/assets/raulzito-kite-icon.png">
+<title>Área do Aluno | Raulzito Kite</title><link rel="stylesheet" href="/aluno.css">
+</head>
+<body>
+<section id="authView" class="auth-wrap">
+  <a class="brand" href="/"><img src="/assets/raulzito-kite-logo.png" alt="Raulzito Kite"></a>
+  <div class="auth-card">
+    <span class="eyebrow">RAULZITO KITE · PRAINHA</span>
+    <h1 id="authTitle">Sua jornada no kite começa aqui.</h1>
+    <p class="muted" id="authIntro">Entre para acompanhar suas aulas, evolução e próximos passos.</p>
+    <form id="loginForm">
+      <label>E-mail<input id="email" type="email" autocomplete="email" required placeholder="voce@email.com"></label>
+      <label>Senha<input id="password" type="password" autocomplete="current-password" minlength="8" required placeholder="Sua senha"></label>
+      <div id="registerFields" hidden>
+        <label>Nome completo<input id="fullName" autocomplete="name" maxlength="120" placeholder="Seu nome"></label>
+        <label>WhatsApp<input id="phone" autocomplete="tel" inputmode="tel" maxlength="25" placeholder="(85) 99999-9999"></label>
+        <label>Experiência<select id="experience"><option value="iniciante">Iniciante</option><option value="intermediario">Já fiz algumas aulas</option><option value="avancado">Já velejo</option></select></label>
+      </div>
+      <button class="primary" id="authSubmit">Entrar na minha área</button>
+      <p id="authMessage" class="message" role="status"></p>
+    </form>
+    <button id="toggleAuth" class="text-button">Ainda não tenho conta · Criar acesso</button>
+    <a class="back" href="/">← Voltar ao site</a>
+  </div>
+</section>
+<main id="studentApp" hidden>
+<header class="topbar">
+  <a class="brand" href="/"><img src="/assets/raulzito-kite-logo.png" alt="Raulzito Kite"></a>
+  <div class="top-right"><span id="topName">Aluno</span><button id="logout" class="quiet">Sair</button></div>
+</header>
+<div class="app-shell">
+  <section class="screen" id="screen-home">
+    <div class="hero-card">
+      <div><span class="eyebrow light">SUA JORNADA NO KITE</span><h1>Olá, <span id="welcomeName">aluno</span>!</h1><p>Seu próximo passo começa com consistência.</p></div>
+      <img src="/assets/foto-01.webp" alt="" aria-hidden="true">
+    </div>
+    <div class="metric-grid">
+      <article class="metric"><small>NÍVEL ATUAL</small><strong id="metricLevel">A definir</strong></article>
+      <article class="metric"><small>AULAS REALIZADAS</small><strong id="metricDone">0</strong></article>
+      <article class="metric"><small>CRÉDITOS DISPONÍVEIS</small><strong id="metricCredits">0</strong></article>
+    </div>
+    <section class="panel next-panel"><div class="section-title"><div><span class="eyebrow">AGENDA</span><h2>Próxima aula</h2></div><button class="outline" data-go="lessons">Ver todas</button></div><div id="nextLesson" class="empty">Você ainda não tem uma aula agendada.</div><button class="primary wide" data-open-booking>＋ Agendar nova aula</button></section>
+    <section class="panel"><div class="section-title"><div><span class="eyebrow">SEU PLANO</span><h2>Pacotes e aulas</h2></div><button class="outline" data-open-packages>Contratar</button></div><div id="myPurchases" class="stack-list"><p class="empty">Nenhum pacote contratado.</p></div></section>
+    <section class="panel"><div class="section-title"><div><span class="eyebrow">ACOMPANHAMENTO</span><h2>Última evolução</h2></div><button class="outline" data-go="progress">Ver desempenho</button></div><div id="latestProgress" class="empty">Seu instrutor ainda não publicou uma avaliação.</div></section>
+  </section>
+  <section class="screen" id="screen-lessons" hidden>
+    <div class="page-head"><span class="eyebrow">AGENDA PESSOAL</span><h1>Minhas aulas</h1><p class="muted">Aulas sincronizadas com a agenda do Raul.</p></div>
+    <button class="primary wide" data-open-booking>＋ Agendar nova aula</button>
+    <div class="panel"><h2>Próximas aulas</h2><div id="upcomingLessons" class="stack-list"></div></div>
+    <div class="panel"><h2>Histórico</h2><div id="lessonHistory" class="stack-list"></div></div>
+  </section>
+  <section class="screen" id="screen-progress" hidden>
+    <div class="page-head"><span class="eyebrow">EVOLUÇÃO INDIVIDUAL</span><h1>Meu desempenho</h1><p class="muted">Registros e orientações publicados pelo instrutor Raul.</p></div>
+    <div id="progressTimeline" class="timeline"><p class="empty">Nenhuma avaliação publicada ainda.</p></div>
+  </section>
+  <section class="screen" id="screen-tips" hidden>
+    <div class="page-head"><span class="eyebrow">CONTEÚDO DO INSTRUTOR</span><h1>Dicas do Raul</h1><p class="muted">Aprenda, revise e prepare sua próxima sessão.</p></div>
+    <div id="tipsList" class="tips-grid"><p class="empty">Nenhuma dica publicada ainda.</p></div>
+  </section>
+  <section class="screen" id="screen-profile" hidden>
+    <div class="page-head"><span class="eyebrow">SEUS DADOS</span><h1>Meu perfil</h1><p class="muted">Mantenha suas informações atualizadas.</p></div>
+    <form id="profileForm" class="panel form-grid">
+      <label>Nome completo<input id="profileName" required maxlength="120"></label>
+      <label>WhatsApp<input id="profilePhone" maxlength="25"></label>
+      <label>E-mail<input id="profileEmail" type="email" disabled></label>
+      <label>Localidade<input id="profileLocality" maxlength="100"></label>
+      <button class="primary wide">Salvar perfil</button><p id="profileMessage" class="message"></p>
+    </form>
+  </section>
+  <section class="screen" id="screen-packages" hidden>
+    <div class="page-head"><span class="eyebrow">CONTRATAÇÃO</span><h1>Contratar aulas</h1><p class="muted">Veja os pacotes cadastrados pelo instrutor. Os créditos são liberados somente após confirmação do pagamento.</p></div>
+    <div id="packagesList" class="package-grid"></div>
+  </section>
+</div>
+<nav class="bottom-nav" aria-label="Navegação do aluno">
+  <button class="active" data-route="home"><span>⌂</span><small>Início</small></button>
+  <button data-route="lessons"><span>▦</span><small>Aulas</small></button>
+  <button data-route="progress"><span>↗</span><small>Desempenho</small></button>
+  <button data-route="tips"><span>✦</span><small>Dicas</small></button>
+  <button data-route="profile"><span>◉</span><small>Perfil</small></button>
+</nav>
+</main>
+<dialog id="bookingDialog"><form id="bookingForm" method="dialog"><div class="dialog-head"><div><span class="eyebrow">RESERVA NA AGENDA DO RAUL</span><h2>Agendar nova aula</h2></div><button type="button" class="close" id="closeBooking">×</button></div>
+<label>Tipo de aula<select id="bookingType" required><option value="">Selecione</option></select></label>
+<label>Data<input id="bookingDate" type="date" required></label>
+<label>Horário disponível<select id="bookingTime" required><option value="">Escolha a data e o tipo primeiro</option></select></label>
+<p class="muted tiny">Os horários são consultados na agenda real. A reserva fica pendente até a confirmação do instrutor.</p>
+<p id="bookingMessage" class="message"></p><button class="primary wide" id="confirmBooking">Solicitar agendamento</button></form></dialog>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="/aluno-config.js"></script><script src="/aluno.js"></script>
+</body></html>

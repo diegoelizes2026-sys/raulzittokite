@@ -35,7 +35,7 @@ O RPC `raul_kite_available_slots(date, integer)` retorna somente horários livre
 O número de WhatsApp da contratação está em `aluno-config.js` e foi reaproveitado de `config.js`. A solicitação de compra fica salva no banco antes de abrir o WhatsApp. O pagamento é confirmado manualmente pelo instrutor; somente então os créditos são liberados.
 
 ## PWA
-A configuração PWA existente foi mantida. O service worker agora inclui os arquivos estáticos da Área do Aluno e da gestão administrativa, sem armazenar respostas privadas do Supabase. O manifest existente não foi substituído.
+A configuração PWA existente foi mantida para o instrutor. A Área do Aluno usa um manifest próprio com o mesmo ícone, tema e service worker, mas com `start_url=/aluno`, evitando que a instalação do aluno abra o painel administrativo. O service worker existente inclui os arquivos estáticos das duas áreas e não armazena respostas privadas do Supabase.
 
 ## Limitações conhecidas antes da publicação final
 - Não há gateway de pagamento integrado; a confirmação é manual, com contato pelo WhatsApp.

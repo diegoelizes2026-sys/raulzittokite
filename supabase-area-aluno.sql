@@ -133,9 +133,8 @@ create policy "Students create own kite bookings" on public.raul_kite_lessons fo
 -- Guard: alunos só atualizam dados de contato; o trigger interno de Auth pode criar/vincular o próprio perfil.
 create or replace function public.raul_kite_guard_student_profile() returns trigger language plpgsql security definer set search_path=public,pg_temp as $$
 begin
+ if current_setting('app.raul_kite_profile_sync',true)='on' and TG_OP in ('INSERT','UPDATE') and new.owner_id='0c997ebb-4ac2-4879-9b70-ae410581dea8'::uuid and new.auth_user_id is not null then return new; end if;
  if auth.uid()='0c997ebb-4ac2-4879-9b70-ae410581dea8'::uuid then if TG_OP='DELETE' then return old; else return new; end if; end if;
- if auth.uid() is null and TG_OP='INSERT' and new.owner_id='0c997ebb-4ac2-4879-9b70-ae410581dea8'::uuid and new.auth_user_id is not null then return new; end if;
- if auth.uid() is null and TG_OP='UPDATE' and old.auth_user_id is null and new.auth_user_id is not null and new.owner_id='0c997ebb-4ac2-4879-9b70-ae410581dea8'::uuid then return new; end if;
  if TG_OP in ('INSERT','DELETE') then raise exception 'Somente o instrutor pode criar ou remover perfis.'; end if;
  if old.auth_user_id is distinct from auth.uid() or new.auth_user_id is distinct from old.auth_user_id or new.owner_id is distinct from old.owner_id
   or new.experience_level is distinct from old.experience_level or new.notes is distinct from old.notes or new.created_at is distinct from old.created_at
@@ -206,15 +205,16 @@ create or replace function public.raul_kite_create_student_profile() returns tri
 declare existing_id uuid; phone_value text;
 begin
  if new.raw_user_meta_data->>'account_type'='raul_kite_student' then
+  perform set_config('app.raul_kite_profile_sync','on',true);
   select id into existing_id from public.raul_kite_students where owner_id='0c997ebb-4ac2-4879-9b70-ae410581dea8'::uuid and auth_user_id is null and lower(coalesce(email,''))=lower(coalesce(new.email,'')) order by created_at limit 1;
   if existing_id is not null then
    update public.raul_kite_students set auth_user_id=new.id,full_name=coalesce(nullif(trim(new.raw_user_meta_data->>'full_name'),''),full_name),phone=coalesce(nullif(trim(new.raw_user_meta_data->>'phone'),''),phone),updated_at=now() where id=existing_id;
   else
    phone_value:=nullif(trim(new.raw_user_meta_data->>'phone'),'');
-   if phone_value is not null and exists(select 1 from public.raul_kite_students s where s.owner_id='0c997ebb-4ac2-4879-9b70-ae410581dea8'::uuid and regexp_replace(coalesce(s.phone,''),'\D','','g')=regexp_replace(phone_value,'\D','','g')) then phone_value:=null; end if;
-   insert into public.raul_kite_students(owner_id,auth_user_id,full_name,phone,email,experience_level)
-   values('0c997ebb-4ac2-4879-9b70-ae410581dea8'::uuid,new.id,coalesce(nullif(trim(new.raw_user_meta_data->>'full_name'),''),'Aluno'),phone_value,new.email,nullif(trim(new.raw_user_meta_data->>'experience_level'),'')) on conflict(auth_user_id) do nothing;
+   if phone_value is not null and exists(select 1 from public.raul_kite_students s where s.owner_id='0c997ebb-4ac2-4879-9b70-ae410581dea8'::uuid and regexp_replace(coalesce(s.phone,''),'\\D','','g')=regexp_replace(phone_value,'\\D','','g')) then phone_value:=null; end if;
+   insert into public.raul_kite_students(owner_id,auth_user_id,full_name,phone,email,experience_level) values('0c997ebb-4ac2-4879-9b70-ae410581dea8'::uuid,new.id,coalesce(nullif(trim(new.raw_user_meta_data->>'full_name'),''),'Aluno'),phone_value,new.email,nullif(trim(new.raw_user_meta_data->>'experience_level'),'')) on conflict(auth_user_id) do nothing;
   end if;
+  perform set_config('app.raul_kite_profile_sync','off',true);
  end if;return new;
 end $$;
 revoke all on function public.raul_kite_create_student_profile() from public,anon,authenticated;

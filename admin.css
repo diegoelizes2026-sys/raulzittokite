@@ -125,3 +125,6 @@ body{min-width:320px;overflow-x:hidden}
 /* Login ocupa toda a viewport; o shell administrativo mantém o espaçamento original. */
 .shell:has(#loginView:not([hidden])){max-width:none;width:100%;padding:0}
 .login-screen{width:100%;max-width:none}
+
+/* Navegação do instrutor com acesso direto às configurações */
+@media(max-width:760px){.app-nav{grid-template-columns:repeat(5,minmax(0,1fr))}.app-nav a small{font-size:9px}}

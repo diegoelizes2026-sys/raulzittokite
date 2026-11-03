@@ -1,0 +1,16 @@
+{
+  "id": "/aluno",
+  "name": "Raulzito Kite — Área do Aluno",
+  "short_name": "Raulzito",
+  "description": "Acompanhe suas aulas, evolução e dicas de kitesurf.",
+  "start_url": "/aluno",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f5f8f6",
+  "theme_color": "#087f73",
+  "orientation": "any",
+  "icons": [
+    {"src": "/assets/pwa-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable"},
+    {"src": "/assets/pwa-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"}
+  ]
+}

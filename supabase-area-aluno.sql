@@ -223,6 +223,7 @@ create trigger raul_kite_auth_user_profile after insert on auth.users for each r
 grant select,insert,update,delete on public.raul_kite_lesson_types to authenticated;
 grant select,insert,update,delete on public.raul_kite_lesson_packages to authenticated;
 grant select,insert,update on public.raul_kite_student_purchases to authenticated;
+revoke insert,update,delete on public.raul_kite_student_credits from anon,authenticated;
 grant select on public.raul_kite_student_credits to authenticated;
 grant select,insert,update,delete on public.raul_kite_student_progress to authenticated;
 grant select,insert,update,delete on public.raul_kite_student_tips to authenticated;

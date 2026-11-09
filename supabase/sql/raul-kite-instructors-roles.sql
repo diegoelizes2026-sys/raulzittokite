@@ -27,6 +27,15 @@ create index if not exists raul_kite_student_credits_owner_id_idx on public.raul
 create index if not exists raul_kite_student_tips_owner_id_idx on public.raul_kite_student_tips(owner_id);
 alter table public.raul_kite_instructors enable row level security;
 grant select,insert,update,delete on public.raul_kite_instructors to authenticated;
+alter table public.raul_kite_booking_settings enable row level security;
+alter table public.raul_kite_lesson_packages enable row level security;
+alter table public.raul_kite_lesson_types enable row level security;
+alter table public.raul_kite_lessons enable row level security;
+alter table public.raul_kite_student_credits enable row level security;
+alter table public.raul_kite_student_progress enable row level security;
+alter table public.raul_kite_student_purchases enable row level security;
+alter table public.raul_kite_student_tips enable row level security;
+alter table public.raul_kite_students enable row level security;
 
 -- Mark the existing Raul account as the only administrator.
 update auth.users

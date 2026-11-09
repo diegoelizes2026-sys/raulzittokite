@@ -155,3 +155,80 @@ html,body{width:100%;max-width:100%;overflow-x:hidden;overscroll-behavior:none}b
  .two{grid-template-columns:1fr;gap:0}.login-card{width:min(100%,440px)}
 }
 @media(prefers-reduced-motion:no-preference){.app-nav a,.time-slot,.day-cell{transition:background .18s ease,border-color .18s ease,transform .18s ease}}
+
+
+/* Fixed PWA viewport: page body never drifts; only the active screen scrolls. */
+*,*::before,*::after{box-sizing:border-box}
+html,body{width:100%;height:100%;max-width:100%;margin:0;overflow:hidden;overscroll-behavior:none}
+body{height:100dvh;min-height:100dvh;touch-action:pan-y}
+.shell{width:100%;max-width:100%;height:100dvh;min-height:0;margin:0;padding:0;overflow:hidden}
+#loginView{height:100dvh;max-height:100dvh;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+#appView{width:100%;max-width:100%;height:100dvh;min-height:0;max-height:100dvh;margin:0;padding:env(safe-area-inset-top) 0 0;overflow:hidden;display:flex;flex-direction:column}
+#appView[hidden]{display:none!important}
+#appView>.topbar{position:relative;z-index:30;top:auto;left:auto;right:auto;flex:0 0 auto;width:100%;min-width:0;max-width:100%;padding:10px max(12px,env(safe-area-inset-right)) 12px max(12px,env(safe-area-inset-left));gap:10px;background:#fff}
+#appView>.topbar>div:first-child{min-width:0;flex:0 1 auto}
+#appView>.topbar .top-actions{display:flex;align-items:center;gap:6px;min-width:0;max-width:62%;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;overscroll-behavior-x:contain}
+#appView>.topbar .top-actions::-webkit-scrollbar{display:none}
+#appView>.topbar .top-actions>*{flex:0 0 auto;width:auto;min-width:44px;max-width:none;white-space:nowrap}
+#appView>.screen{display:none;flex:1 1 auto;min-width:0;width:100%;max-width:100%;min-height:0;max-height:none;overflow-y:auto;overflow-x:hidden;overscroll-behavior-y:contain;overscroll-behavior-x:none;-webkit-overflow-scrolling:touch;padding:14px 12px calc(84px + env(safe-area-inset-bottom))}
+#appView>.screen:not([hidden]){display:block}
+#appView>.screen[hidden]{display:none!important}
+#appView>.app-nav{position:fixed;z-index:60;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:3px;width:100%;min-width:0;max-width:100%;padding:7px max(8px,env(safe-area-inset-right)) calc(7px + env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left));background:#062d35f5;border-top:1px solid #1b6265;backdrop-filter:blur(18px)}
+#appView>.app-nav a{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;min-height:48px;gap:3px;border-radius:10px;color:#b6ceca;text-decoration:none}
+#appView>.app-nav a.active{background:#0a5558;color:#a8f0df}
+#appView>.app-nav a span{font-size:20px;line-height:1.1}
+#appView>.app-nav a small{font-size:10px;font-weight:800}
+#appView .agenda,#appView .stats,#appView .welcome,#appView .calendar-head,#appView .calendar-controls,#appView .schedule-section{min-width:0;max-width:100%}
+#appView .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+#appView .two{grid-template-columns:repeat(2,minmax(0,1fr))}
+#appView input,#appView select,#appView textarea,#appView button{max-width:100%;min-width:0}
+#appView input:not([type=checkbox]),#appView select,#appView textarea{width:100%;font-size:16px!important;-webkit-appearance:none;appearance:none}
+#appView input[type=time],#appView input[type=date]{width:100%;min-width:0;max-width:100%;-webkit-appearance:none;appearance:none}
+#appView .table-wrap{width:100%;min-width:0;max-width:100%;overflow-x:auto;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+#appView .calendar-grid{width:100%;max-width:100%;grid-template-columns:repeat(7,minmax(0,1fr))}
+#appView .calendar-grid>*{min-width:0}
+#appView .time-grid{min-width:0;max-width:100%}
+#appView .time-slot{min-width:0;max-width:100%}
+dialog#lessonDialog{position:fixed;inset:0;margin:auto;width:min(560px,calc(100% - 24px));max-width:100%;max-height:100dvh;height:max-content;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;border:0;border-radius:20px;padding:0}
+dialog#lessonDialog::backdrop{background:#102019aa;backdrop-filter:blur(4px)}
+dialog#lessonDialog form{width:100%;min-width:0;max-width:100%;padding:22px;overflow:hidden}
+dialog#lessonDialog input,dialog#lessonDialog select,dialog#lessonDialog textarea{width:100%;min-width:0;max-width:100%;font-size:16px!important;-webkit-appearance:none;appearance:none}
+dialog#lessonDialog input[type=time],dialog#lessonDialog input[type=date]{width:100%;min-width:0;-webkit-appearance:none;appearance:none}
+dialog#lessonDialog .two{grid-template-columns:repeat(2,minmax(0,1fr))}
+dialog#lessonDialog .two>*{min-width:0}
+body.modal-open{overflow:hidden!important;touch-action:none}
+@media(max-width:760px){
+ #appView>.topbar{min-height:64px;padding:8px 10px;align-items:center}
+ #appView>.topbar .brand{font-size:15px}
+ #appView>.topbar .muted{font-size:10px;margin:3px 0}
+ #appView>.topbar .top-actions{max-width:62%;gap:5px}
+ #appView>.topbar .top-actions .outline{padding:7px 8px;font-size:10px;min-height:40px}
+ #appView>.screen{padding:12px 10px calc(80px + env(safe-area-inset-bottom))}
+ #appView .welcome{align-items:flex-start;flex-direction:column;padding:12px 0 16px;gap:10px}
+ #appView .welcome .primary{width:100%}
+ #appView .agenda{padding:13px 10px;margin-top:12px}
+ #appView .stats{gap:7px}
+ #appView .stats article{padding:12px 9px;min-width:0}
+ #appView .stats small{font-size:8px;letter-spacing:.06em}
+ #appView .stats strong{font-size:clamp(20px,6vw,25px)}
+ #appView .agenda-head{align-items:stretch;flex-direction:column}
+ #appView .agenda-head input{max-width:100%;width:100%}
+ #appView .calendar-head{display:flex;flex-direction:column;gap:10px}
+ #appView .calendar-controls{display:flex;flex-wrap:wrap;gap:6px}
+ #appView .calendar-controls .view-switch{display:flex;width:100%;min-width:0}
+ #appView .calendar-controls .view-switch button{flex:1 1 0;min-width:0}
+ #appView .calendar-grid{gap:3px}
+ #appView .day-cell{min-width:0;overflow:hidden;padding:5px 2px}
+ #appView .two{grid-template-columns:minmax(0,1fr);gap:0}
+ #appView .date-label{width:100%;min-width:0}
+ dialog#lessonDialog{inset:0;width:100%;height:100dvh;max-height:100dvh;border-radius:0}
+ dialog#lessonDialog form{padding:calc(16px + env(safe-area-inset-top)) 14px calc(18px + env(safe-area-inset-bottom))}
+ dialog#lessonDialog .dialog-head{position:sticky;top:calc(-16px - env(safe-area-inset-top));z-index:3;background:#fff;padding:5px 0 12px}
+}
+@media(max-width:390px){
+ #appView>.topbar .brand{font-size:13px}
+ #appView>.topbar .top-actions{max-width:60%}
+ #appView>.topbar .top-actions .outline{font-size:9px;padding:6px}
+ #appView>.screen{padding-left:9px;padding-right:9px}
+ dialog#lessonDialog .dialog-head h2{font-size:21px}
+}

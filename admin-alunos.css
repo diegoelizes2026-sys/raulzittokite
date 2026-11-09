@@ -106,3 +106,5 @@ body.modal-open{overflow:hidden!important;touch-action:none}
 
 .instructor-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;min-width:0}.instructor-row>div{min-width:0;overflow-wrap:anywhere}.instructor-status{flex:0 0 auto;padding:5px 9px;border-radius:20px;font-size:10px;font-weight:900}.instructor-status.active{background:#e7f8ef;color:#087e53}.instructor-status.inactive{background:#fff1e8;color:#a14c22}.item-actions button.danger{color:#a34a3b;border-color:#edd8d3}
 @media(max-width:390px){.instructor-row{flex-direction:column}.instructor-dialog .dialog-head{align-items:flex-start}}
+
+#adminApp .panel form button,#adminApp .instructor-dialog form button.submit-wide{width:100%;max-width:100%;min-width:0}#adminApp>.tabs button,#adminApp .item-actions button,.head button,.password-field button{width:auto}

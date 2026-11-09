@@ -130,6 +130,7 @@ body{min-width:320px;overflow-x:hidden}
 @media(max-width:760px){.app-nav{grid-template-columns:repeat(5,minmax(0,1fr))}.app-nav a small{font-size:9px}}
 
 
+[hidden]{display:none!important}
 /* Mobile app shell: fixed top bar, four-tab navigation, and a single scrolling content area. */
 html,body{width:100%;max-width:100%;overflow-x:hidden;overscroll-behavior:none}body{min-width:0;touch-action:pan-y}img,table,dialog,.shell,.screen,.agenda,.calendar-section,.schedule-section{max-width:100%}input,select,textarea{font-size:16px;max-width:100%}button,a,.time-slot,.day-cell{min-height:44px}
 @media(max-width:760px){

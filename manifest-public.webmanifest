@@ -1,0 +1,26 @@
+{
+  "id": "/",
+  "name": "Raulzito Kite",
+  "short_name": "Raulzito",
+  "description": "Site oficial e acesso às aulas de kitesurf na Prainha, Ceará.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f7f8f5",
+  "theme_color": "#073f45",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/assets/pwa-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/pwa-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -17,6 +17,14 @@ function cleanEmail(value: unknown) {
 function cleanText(value: unknown) {
   return String(value ?? "").trim();
 }
+function firstNamedKey(envName: string) {
+  try {
+    const keys = JSON.parse(Deno.env.get(envName) ?? "{}");
+    return keys.default ?? Object.values(keys)[0] ?? "";
+  } catch {
+    return "";
+  }
+}
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
@@ -24,8 +32,10 @@ Deno.serve(async (req: Request) => {
 
   try {
     const url = Deno.env.get("SUPABASE_URL") ?? "";
-    const anonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? Deno.env.get("SUPABASE_PUBLISHABLE_KEY") ?? "";
-    const secretKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? Deno.env.get("SUPABASE_SECRET_KEY") ?? "";
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY") ??
+      Deno.env.get("SUPABASE_PUBLISHABLE_KEY") ?? firstNamedKey("SUPABASE_PUBLISHABLE_KEYS");
+    const secretKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ??
+      Deno.env.get("SUPABASE_SECRET_KEY") ?? firstNamedKey("SUPABASE_SECRET_KEYS");
     if (!url || !anonKey || !secretKey) {
       return reply({ error: "Configuração segura do Supabase incompleta. Verifique as variáveis da Edge Function." }, 500);
     }

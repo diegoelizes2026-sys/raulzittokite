@@ -138,3 +138,7 @@
   }
   .main-nav>a.nav-admin .ui-icon{width:16px;height:16px}
 }
+
+
+/* Global mobile viewport and horizontal-scroll safeguards. */
+html,body{width:100%;max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}body{touch-action:pan-y}.hero{height:min(720px,calc(100dvh - 82px))}@media(max-width:760px){.hero{height:min(760px,calc(100dvh - 72px));min-height:520px}.site-header{padding-left:max(14px,env(safe-area-inset-left));padding-right:max(14px,env(safe-area-inset-right))}}

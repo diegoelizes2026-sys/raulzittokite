@@ -85,7 +85,7 @@
   const full_name=$('instructorName').value.trim(),phone=$('instructorPhone').value.trim(),email=$('instructorEmail').value.trim().toLowerCase(),password=$('instructorPassword').value;
   $('instructorFormError').textContent='';
   if(!full_name||!phone||!email){$('instructorFormError').textContent='Preencha nome completo, telefone e e-mail.';return}
-  if(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)){$('instructorFormError').textContent='Digite um endereço de e-mail válido.';return}
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){$('instructorFormError').textContent='Digite um endereço de e-mail válido.';return}
   if(!editingInstructorId&&password.length<8){$('instructorFormError').textContent='A senha precisa ter pelo menos 8 caracteres.';return}
   if(editingInstructorId&&password&&password.length<8){$('instructorFormError').textContent='A nova senha precisa ter pelo menos 8 caracteres.';return}
   const button=$('saveInstructor');button.disabled=true;button.textContent='Salvando…';

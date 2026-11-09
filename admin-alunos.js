@@ -1,8 +1,8 @@
 (() => {
  const cfg=window.RAUL_ADMIN_CONFIG||{},$=id=>document.getElementById(id),esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])),money=v=>Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
- const db=window.supabase?.createClient(cfg.supabaseUrl,cfg.supabaseAnonKey);let user=null,students=[],packages=[],types=[],purchases=[],tips=[],credits=[],progress=[],lessons=[],selected=null,availability=null;
+ const db=window.supabase?.createClient(cfg.supabaseUrl,cfg.supabaseAnonKey);let user=null,userRole=null,instructors=[],editingInstructorId=null,students=[],packages=[],types=[],purchases=[],tips=[],credits=[],progress=[],lessons=[],selected=null,availability=null;
  function showTab(name){if(name==='overview')renderOverview();document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('active',x.dataset.tab===name));document.querySelectorAll('.tab').forEach(x=>x.hidden=x.id!=='tab-'+name)}document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.tab)));document.querySelectorAll('[data-jump]').forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.jump)));$('overviewRefresh').addEventListener('click',async()=>{const b=$('overviewRefresh');b.disabled=true;b.textContent='Atualizando…';await load();showTab('overview');b.disabled=false;b.textContent='↻ Atualizar painel'});
- async function init(){if(!db)return;const {data:{session}}=await db.auth.getSession();if(!session)return;const {data,error}=await db.auth.getUser();if(error||!data.user||data.user.email?.toLowerCase()!==cfg.allowedEmail?.toLowerCase())return;user=data.user;$('authError').hidden=true;$('adminApp').hidden=false;await load();if(location.hash==='#settings')showTab('settings')}
+ async function init(){if(!db)return;const {data:{session}}=await db.auth.getSession();if(!session)return;const {data,error}=await db.auth.getUser();if(error||!data.user)return;user=data.user;userRole=user.app_metadata?.role||null;if(!['admin','instructor'].includes(userRole)){user=null;return}if(userRole==='instructor'){const {data:profile,error:profileError}=await db.from('raul_kite_instructors').select('id,is_active,full_name').eq('auth_user_id',user.id).maybeSingle();if(profileError||!profile||!profile.is_active){await db.auth.signOut();user=null;return}}document.querySelectorAll('[data-admin-only]').forEach(el=>el.hidden=userRole!=='admin');$('authError').hidden=true;$('adminApp').hidden=false;await load();if(userRole==='admin')await loadInstructors();if(location.hash==='#settings')showTab('settings')}
  $('logout').onclick=async()=>{await db.auth.signOut();location.href='/admin.html'};
  async function load(){const names=['raul_kite_students','raul_kite_lesson_packages','raul_kite_lesson_types','raul_kite_student_purchases','raul_kite_student_tips','raul_kite_student_credits','raul_kite_student_progress','raul_kite_lessons'];const rs=await Promise.all(names.map(n=>db.from(n).select('*').order('created_at',{ascending:false})));const bad=rs.find(r=>r.error);if(bad){alert(bad.error.message);return}[students,packages,types,purchases,tips,credits,progress,lessons]=rs.map(r=>r.data||[]);renderStudents();renderPackages();renderTypes();renderPurchases();renderTips();await loadAvailability();renderOverview()}
 
@@ -24,10 +24,10 @@
  $('studentSearch').oninput=renderStudents;
  function renderStudents(){const q=$('studentSearch').value.toLowerCase();$('studentsList').innerHTML=students.filter(s=>(s.full_name+' '+(s.phone||'')).toLowerCase().includes(q)).map(s=>'<article class="item"><strong>'+esc(s.full_name)+'</strong><small>'+esc(s.phone||'Sem telefone')+' · '+esc(s.experience_level||'Nível não definido')+'</small><div class="item-actions"><button data-student="'+s.id+'">Abrir perfil</button></div></article>').join('')||'<p class="muted">Nenhum aluno cadastrado ainda.</p>';$('studentsList').querySelectorAll('[data-student]').forEach(b=>b.onclick=()=>selectStudent(b.dataset.student))}
  function selectStudent(id){selected=students.find(s=>s.id===id);if(!selected)return;$('selectedName').textContent=selected.full_name;const hist=lessons.filter(l=>l.student_id===id).sort((a,b)=>(b.lesson_date+b.lesson_time).localeCompare(a.lesson_date+a.lesson_time));const bal=credits.filter(c=>c.student_id===id).reduce((n,c)=>n+Number(c.delta),0);const count=progress.filter(p=>p.student_id===id).length;$('studentSummary').innerHTML='<p>'+esc(selected.email||'')+' · '+esc(selected.phone||'')+'</p><p><b>Saldo:</b> '+bal+' créditos · <b>Registros de evolução:</b> '+count+'</p><p><b>Observações:</b> '+esc(selected.notes||'Nenhuma')+'</p><h3>Histórico de aulas</h3>'+(hist.map(l=>'<p>'+esc(l.lesson_date)+' · '+esc(String(l.lesson_time).slice(0,5))+' — '+esc(l.lesson_type)+' · '+esc(l.status)+'</p>').join('')||'<p class="muted">Nenhuma aula registrada.</p>');$('studentProgress').innerHTML=progress.filter(p=>p.student_id===id).map(p=>'<article class="item"><strong>'+esc(p.level||'Evolução')+'</strong><small>'+new Date(p.created_at).toLocaleDateString('pt-BR')+' · '+(p.is_visible?'Visível para o aluno':'Privado')+'</small><p>'+esc(p.instructor_notes||'')+'</p></article>').join('')||'<p class="muted">Nenhuma evolução registrada.</p>'}
- $('progressForm').onsubmit=async e=>{e.preventDefault();if(!selected){$('progressMsg').textContent='Selecione um aluno primeiro.';return}const p={owner_id:user.id,student_id:selected.id,level:$('pLevel').value.trim()||null,experience:$('pExperience').value.trim()||null,technical_evolution:$('pTechnical').value.trim()||null,kite_control:$('pKite').value.trim()||null,board_control:$('pBoard').value.trim()||null,balance:$('pBalance').value.trim()||null,safety:$('pSafety').value.trim()||null,instructor_notes:$('pNotes').value.trim()||null,next_goals:$('pGoals').value.trim()||null,is_visible:$('pVisible').checked};const {error}=await db.from('raul_kite_student_progress').insert(p);$('progressMsg').textContent=error?error.message:'Evolução registrada.';if(!error){['pLevel','pExperience','pTechnical','pKite','pBoard','pBalance','pSafety','pNotes','pGoals'].forEach(id=>$(id).value='');await load();selectStudent(selected.id)}};
+ $('progressForm').onsubmit=async e=>{e.preventDefault();if(!selected){$('progressMsg').textContent='Selecione um aluno primeiro.';return}const p={owner_id:user.id,student_id:selected.id,level:$('pLevel').value.trim()||null,experience:$('pExperience').value.trim()||null,technical_evolution:$('pTechnical').value.trim()||null,kite_control:$('pKite').value.trim()||null,board_control:$('pBoard').value.trim()||null,balance:$('pBalance').value.trim()||null,safety:$('pSafety').value.trim()||null,instructor_notes:$('pNotes').value.trim()||null,next_goals:$('pGoals').value.trim()||null,is_visible:$('pVisible').checked};p.owner_id=selected.owner_id||user.id;const {error}=await db.from('raul_kite_student_progress').insert(p);$('progressMsg').textContent=error?error.message:'Evolução registrada.';if(!error){['pLevel','pExperience','pTechnical','pKite','pBoard','pBalance','pSafety','pNotes','pGoals'].forEach(id=>$(id).value='');await load();selectStudent(selected.id)}};
  function renderPackages(){$('packagesAdminList').innerHTML=packages.map(p=>'<article class="item"><strong>'+esc(p.name)+' · '+p.lesson_count+' aulas</strong><small>'+money(p.price)+' · '+(p.is_active?'Disponível':'Inativo')+'</small><div class="item-actions"><button data-edit-package="'+p.id+'">Editar</button><button data-toggle-package="'+p.id+'">'+(p.is_active?'Desativar':'Ativar')+'</button></div></article>').join('')||'<p class="muted">Nenhum pacote cadastrado.</p>';$('packagesAdminList').querySelectorAll('[data-edit-package]').forEach(b=>b.onclick=()=>editPackage(b.dataset.editPackage));$('packagesAdminList').querySelectorAll('[data-toggle-package]').forEach(b=>b.onclick=()=>togglePackage(b.dataset.togglePackage))}
  function editPackage(id){const p=packages.find(x=>x.id===id);if(!p)return;$('packageId').value=p.id;$('packageName').value=p.name;$('packageCount').value=p.lesson_count;$('packagePrice').value=p.price;$('packageDescription').value=p.description||'';$('packageBenefits').value=p.benefits||'';$('packageActive').checked=p.is_active;$('packageFormTitle').textContent='Editar pacote'}
- $('packageForm').onsubmit=async e=>{e.preventDefault();const id=$('packageId').value,p={owner_id:user.id,name:$('packageName').value.trim(),lesson_count:Number($('packageCount').value),price:Number($('packagePrice').value),description:$('packageDescription').value,benefits:$('packageBenefits').value,is_active:$('packageActive').checked,updated_at:new Date().toISOString()};const r=id?await db.from('raul_kite_lesson_packages').update(p).eq('id',id):await db.from('raul_kite_lesson_packages').insert(p);$('packageMsg').textContent=r.error?r.error.message:'Pacote salvo.';if(!r.error){$('packageForm').reset();$('packageId').value='';await load()}};
+ $('packageForm').onsubmit=async e=>{e.preventDefault();const id=$('packageId').value,p={owner_id:(id?packages.find(x=>x.id===id)?.owner_id:null)||user.id,name:$('packageName').value.trim(),lesson_count:Number($('packageCount').value),price:Number($('packagePrice').value),description:$('packageDescription').value,benefits:$('packageBenefits').value,is_active:$('packageActive').checked,updated_at:new Date().toISOString()};const r=id?await db.from('raul_kite_lesson_packages').update(p).eq('id',id):await db.from('raul_kite_lesson_packages').insert(p);$('packageMsg').textContent=r.error?r.error.message:'Pacote salvo.';if(!r.error){$('packageForm').reset();$('packageId').value='';await load()}};
  async function togglePackage(id){const p=packages.find(x=>x.id===id);const {error}=await db.from('raul_kite_lesson_packages').update({is_active:!p.is_active}).eq('id',id);if(error)alert(error.message);else load()}
  function renderPurchases(){$('purchasesList').innerHTML=purchases.map(p=>{const s=students.find(x=>x.id===p.student_id);return '<article class="item"><strong>'+esc(p.package_name)+' · '+esc(s?.full_name||'Aluno')+'</strong><small>'+p.lessons_quantity+' aulas · '+money(p.amount)+' · '+(p.payment_status==='confirmed'?'Pago':p.status==='cancelled'?'Cancelado':'Pendente')+'</small><div class="item-actions">'+(p.status==='pending'?'<button class="confirm" data-confirm-purchase="'+p.id+'">Confirmar pagamento e liberar créditos</button><button data-cancel-purchase="'+p.id+'">Cancelar</button>':'')+'</div></article>'}).join('')||'<p class="muted">Nenhuma solicitação de compra.</p>';$('purchasesList').querySelectorAll('[data-confirm-purchase]').forEach(b=>b.onclick=()=>confirmPurchase(b.dataset.confirmPurchase));$('purchasesList').querySelectorAll('[data-cancel-purchase]').forEach(b=>b.onclick=()=>cancelPurchase(b.dataset.cancelPurchase))}
  async function confirmPurchase(id){if(!confirm('Confirmar que o pagamento foi recebido? Isso libera os créditos no saldo do aluno.'))return;const {error}=await db.from('raul_kite_student_purchases').update({status:'confirmed',payment_status:'confirmed',confirmed_at:new Date().toISOString()}).eq('id',id);if(error)alert(error.message);else{await load();alert('Pagamento confirmado. Créditos liberados automaticamente.')}}
@@ -40,5 +40,73 @@
  async function loadAvailability(){const {data,error}=await db.from('raul_kite_booking_settings').select('*').eq('owner_id',user.id).maybeSingle();if(error){$('availabilityMsg').textContent='Não foi possível carregar: '+error.message;return}availability=data||{weekdays:[1,2,3,4,5,6,7],start_time:'07:00:00',end_time:'18:00:00',interval_minutes:60,max_advance_days:60};document.querySelectorAll('input[name="weekday"]').forEach(x=>x.checked=availability.weekdays.includes(Number(x.value)));$('availabilityStart').value=String(availability.start_time).slice(0,5);$('availabilityEnd').value=String(availability.end_time).slice(0,5);$('availabilityInterval').value=String(availability.interval_minutes);$('availabilityAdvance').value=availability.max_advance_days;renderAvailabilitySummary()}
  function renderAvailabilitySummary(){if(!availability)return;const names=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];const days=availability.weekdays.map(n=>names[n%7]).join(', ');$('availabilitySummary').textContent=days+' · '+String(availability.start_time).slice(0,5)+' às '+String(availability.end_time).slice(0,5)+' · intervalos de '+availability.interval_minutes+' min · até '+availability.max_advance_days+' dias'}
  $('availabilityForm').onsubmit=async e=>{e.preventDefault();const weekdays=[...document.querySelectorAll('input[name="weekday"]:checked')].map(x=>Number(x.value));const start=$('availabilityStart').value,end=$('availabilityEnd').value;if(!weekdays.length){$('availabilityMsg').textContent='Selecione pelo menos um dia de atendimento.';return}if(!start||!end||start>=end){$('availabilityMsg').textContent='O horário de encerramento precisa ser posterior ao início.';return}const p={owner_id:user.id,weekdays,start_time:start,end_time:end,interval_minutes:Number($('availabilityInterval').value),max_advance_days:Number($('availabilityAdvance').value),updated_at:new Date().toISOString()};const {data,error}=await db.from('raul_kite_booking_settings').upsert(p,{onConflict:'owner_id'}).select().single();$('availabilityMsg').textContent=error?'Não foi possível salvar: '+error.message:'Disponibilidade salva. Os horários dos alunos já usarão estas regras.';if(!error){availability=data;renderAvailabilitySummary()}}
+
+ const instructorDialog=$('instructorDialog');
+ function instructorMessage(message){$('instructorMsg').textContent=message||''}
+ function openInstructorForm(row=null){
+  editingInstructorId=row?.id||null;
+  $('instructorDialogTitle').textContent=row?'Editar instrutor':'Novo instrutor';
+  $('instructorName').value=row?.full_name||'';
+  $('instructorPhone').value=row?.phone||'';
+  $('instructorEmail').value=row?.email||'';
+  $('instructorPassword').value='';
+  $('instructorPassword').required=!row;
+  $('instructorPasswordHint').textContent=row?'Deixe em branco para manter a senha atual.':'Mínimo de 8 caracteres.';
+  $('instructorFormError').textContent='';
+  $('saveInstructor').textContent=row?'Salvar alterações':'Criar acesso do instrutor';
+  document.body.classList.add('modal-open');
+  instructorDialog.showModal();
+ }
+ function closeInstructorForm(){instructorDialog.close();document.body.classList.remove('modal-open')}
+ instructorDialog.addEventListener('close',()=>document.body.classList.remove('modal-open'));
+ $('newInstructor').addEventListener('click',()=>openInstructorForm());
+ $('closeInstructorDialog').addEventListener('click',closeInstructorForm);
+ $('toggleInstructorPassword').addEventListener('click',()=>{const field=$('instructorPassword'),visible=field.type==='password';field.type=visible?'text':'password';$('toggleInstructorPassword').textContent=visible?'Ocultar':'Mostrar';$('toggleInstructorPassword').setAttribute('aria-label',visible?'Ocultar senha':'Mostrar senha')});
+ async function callInstructorManager(payload){
+  const {data,error}=await db.functions.invoke('raul-kite-manage-instructors',{body:payload});
+  if(error){let message=error.message||'Não foi possível concluir a operação.';try{const context=error.context;if(context?.json){const body=await context.json();message=body.error||message}}catch{}throw new Error(message)}
+  if(data?.error)throw new Error(data.error);
+  return data;
+ }
+ async function loadInstructors(){
+  if(userRole!=='admin')return;
+  const {data,error}=await db.from('raul_kite_instructors').select('id,auth_user_id,full_name,phone,email,is_active,created_at').order('full_name');
+  if(error){instructorMessage('Não foi possível carregar os instrutores: '+error.message);return}
+  instructors=data||[];renderInstructors();
+ }
+ function renderInstructors(){
+  $('instructorsList').innerHTML=instructors.length?instructors.map(i=>'<article class="item instructor-item"><div class="instructor-row"><div><strong>'+esc(i.full_name)+'</strong><small>'+esc(i.phone)+' · '+esc(i.email)+'</small></div><span class="instructor-status '+(i.is_active?'active':'inactive')+'">'+(i.is_active?'Ativo':'Inativo')+'</span></div><div class="item-actions"><button data-inst-edit="'+i.id+'">Editar</button><button data-inst-toggle="'+i.id+'">'+(i.is_active?'Desativar':'Ativar')+'</button><button class="danger" data-inst-delete="'+i.id+'">Excluir</button></div></article>').join(''):'<p class="muted">Nenhum instrutor cadastrado. Use “Novo instrutor” para criar o primeiro acesso.</p>';
+  $('instructorsList').querySelectorAll('[data-inst-edit]').forEach(b=>b.onclick=()=>openInstructorForm(instructors.find(i=>i.id===b.dataset.instEdit)));
+  $('instructorsList').querySelectorAll('[data-inst-toggle]').forEach(b=>b.onclick=()=>toggleInstructor(b.dataset.instToggle));
+  $('instructorsList').querySelectorAll('[data-inst-delete]').forEach(b=>b.onclick=()=>deleteInstructor(b.dataset.instDelete));
+ }
+ $('instructorForm').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const full_name=$('instructorName').value.trim(),phone=$('instructorPhone').value.trim(),email=$('instructorEmail').value.trim().toLowerCase(),password=$('instructorPassword').value;
+  $('instructorFormError').textContent='';
+  if(!full_name||!phone||!email){$('instructorFormError').textContent='Preencha nome completo, telefone e e-mail.';return}
+  if(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)){$('instructorFormError').textContent='Digite um endereço de e-mail válido.';return}
+  if(!editingInstructorId&&password.length<8){$('instructorFormError').textContent='A senha precisa ter pelo menos 8 caracteres.';return}
+  if(editingInstructorId&&password&&password.length<8){$('instructorFormError').textContent='A nova senha precisa ter pelo menos 8 caracteres.';return}
+  const button=$('saveInstructor');button.disabled=true;button.textContent='Salvando…';
+  try{
+   await callInstructorManager(editingInstructorId?{action:'update',id:editingInstructorId,full_name,phone,email,password}:{action:'create',full_name,phone,email,password});
+   $('instructorPassword').value='';closeInstructorForm();instructorMessage(editingInstructorId?'Cadastro do instrutor atualizado.':'Conta de instrutor criada com sucesso.');await loadInstructors();
+  }catch(error){$('instructorFormError').textContent=error.message||'Não foi possível salvar o instrutor.'}
+  finally{button.disabled=false;button.textContent=editingInstructorId?'Salvar alterações':'Criar acesso do instrutor'}
+ });
+ async function toggleInstructor(id){
+  const i=instructors.find(x=>x.id===id);if(!i)return;
+  const action=i.is_active?'desativar':'reativar';
+  if(!confirm('Deseja '+action+' o acesso de '+i.full_name+'?'))return;
+  try{await callInstructorManager({action:'set_active',id,is_active:!i.is_active});instructorMessage('Status do instrutor atualizado.');await loadInstructors()}
+  catch(error){instructorMessage(error.message)}
+ }
+ async function deleteInstructor(id){
+  const i=instructors.find(x=>x.id===id);if(!i)return;
+  if(!confirm('Excluir definitivamente o acesso de '+i.full_name+'? O instrutor não poderá mais entrar. Os registros históricos das aulas permanecem no banco.'))return;
+  try{await callInstructorManager({action:'delete',id});instructorMessage('Acesso do instrutor excluído.');await loadInstructors()}
+  catch(error){instructorMessage(error.message)}
+ }
  init();
 })();

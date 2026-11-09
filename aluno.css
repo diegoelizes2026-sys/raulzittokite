@@ -121,3 +121,5 @@ html,body{width:100%;max-width:100%;overflow-x:hidden;overscroll-behavior:none}b
  dialog form{padding:20px 16px calc(20px + env(safe-area-inset-bottom))}
 }
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+
+.reminder-note{margin:10px 0 0;padding:10px 12px;border-radius:10px;background:#fff4df;color:#845d17;font-size:12px;font-weight:700;line-height:1.5}

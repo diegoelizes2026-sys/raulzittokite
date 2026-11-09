@@ -128,3 +128,29 @@ body{min-width:320px;overflow-x:hidden}
 
 /* Navegação do instrutor com acesso direto às configurações */
 @media(max-width:760px){.app-nav{grid-template-columns:repeat(5,minmax(0,1fr))}.app-nav a small{font-size:9px}}
+
+
+/* Mobile app shell: fixed top bar, four-tab navigation, and a single scrolling content area. */
+html,body{width:100%;max-width:100%;overflow-x:hidden;overscroll-behavior:none}body{min-width:0;touch-action:pan-y}img,table,dialog,.shell,.screen,.agenda,.calendar-section,.schedule-section{max-width:100%}input,select,textarea{font-size:16px;max-width:100%}button,a,.time-slot,.day-cell{min-height:44px}
+@media(max-width:760px){
+ #appView{height:100dvh;min-height:100dvh;max-height:100dvh;overflow:hidden;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)}
+ #appView>.topbar{position:relative;top:0;z-index:30;flex:0 0 auto;width:100%;padding:10px 14px;min-height:66px;align-items:center;background:#fff}
+ #appView>.topbar .top-actions{gap:6px;max-width:58%;overflow-x:auto}
+ #appView>.topbar .top-actions .outline{padding:8px 9px;font-size:11px;white-space:nowrap}
+ #appView>.app-nav{position:fixed;z-index:60;left:0;right:0;bottom:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:3px;padding:7px 8px calc(7px + env(safe-area-inset-bottom));min-height:64px;background:#062d35f5;border-top:1px solid #1b6265;backdrop-filter:blur(18px)}
+ .app-nav a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:0;min-height:48px;border-radius:10px;color:#b6ceca;text-decoration:none}
+ .app-nav a span{font-size:20px;line-height:1.1}.app-nav a small{font-size:10px;font-weight:800}.app-nav a.active{background:#0a5558;color:#a8f0df}
+ #appView>.screen{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:14px 12px calc(82px + env(safe-area-inset-bottom))}
+ #appView>.screen[hidden]{display:none!important}
+ .welcome{padding:12px 0 16px;align-items:flex-start;flex-direction:column}.welcome .primary{width:100%;min-height:48px}
+ .stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.stats article{min-width:0;padding:13px}.stats strong{font-size:25px}
+ .calendar-head,.calendar-controls{max-width:100%}.calendar-controls{display:flex;flex-wrap:wrap}.calendar-controls .view-switch{width:100%}.calendar-controls .view-switch button{flex:1}
+ .calendar-grid{width:100%;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}.day-cell{min-width:0;min-height:58px;padding:5px 2px}.day-cell>span{font-size:12px}.day-cell small{font-size:8px}
+ .time-grid{grid-template-columns:1fr}.time-slot{width:100%;min-width:0}
+ .agenda-head{align-items:stretch;flex-direction:column}.date-label{width:100%;min-width:0}.date-label input{width:100%}
+ .table-wrap{width:100%;max-width:100%;overflow-x:auto;overscroll-behavior-x:contain}.table-wrap table{min-width:680px}
+ dialog{position:fixed;inset:auto 0 0;margin:0;width:100%;max-width:100%;max-height:88dvh;border-radius:22px 22px 0 0;padding-bottom:env(safe-area-inset-bottom);overflow:auto}
+ dialog form{padding:20px 16px calc(20px + env(safe-area-inset-bottom))}.dialog-head{position:sticky;top:-20px;background:white;padding:8px 0 12px;z-index:2}
+ .two{grid-template-columns:1fr;gap:0}.login-card{width:min(100%,440px)}
+}
+@media(prefers-reduced-motion:no-preference){.app-nav a,.time-slot,.day-cell{transition:background .18s ease,border-color .18s ease,transform .18s ease}}

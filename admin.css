@@ -234,3 +234,5 @@ body.modal-open{overflow:hidden!important;touch-action:none}
 }
 
 #appView .screen form button:not(.close){width:100%;max-width:100%;min-width:0}#appView .top-actions button{width:auto}#appView .calendar-controls>button{width:auto;min-width:44px}#appView .view-switch button{width:auto;min-width:0}#lessonDialog .close{width:44px;min-width:44px}
+
+body{padding:0!important}

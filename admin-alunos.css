@@ -29,3 +29,77 @@
 .overview-actions button.danger{color:#a34a3b;border-color:#edd8d3}
 @media(max-width:850px){.overview-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.overview-columns{grid-template-columns:1fr}}
 @media(max-width:520px){.overview-heading{align-items:flex-start;flex-direction:column}.overview-heading .primary{width:100%}.overview-stats{gap:8px}.overview-stat{min-height:100px;padding:13px}.overview-stat strong{font-size:28px}.overview-stat small{font-size:8px;line-height:1.35}.panel-heading{align-items:flex-start}.panel-heading .outline{white-space:nowrap;padding:8px}.tabs{scroll-snap-type:x proximity}.tabs button{scroll-snap-align:start;min-height:42px}.tab{padding-bottom:26px}}
+
+
+/* App shell mobile-first: viewport locked, only the selected panel scrolls. */
+*,*::before,*::after{box-sizing:border-box}
+html,body{width:100%;height:100%;min-height:100%;max-width:100%;margin:0;overflow:hidden;overscroll-behavior:none}
+body{height:100dvh;min-height:100dvh;display:flex;flex-direction:column;touch-action:pan-y}
+img,svg,video,canvas,iframe{max-width:100%}
+button,input,select,textarea{max-width:100%;min-width:0}
+input,select,textarea{font-size:16px!important;-webkit-appearance:none;appearance:none}
+button{min-height:44px;touch-action:manipulation}
+.head{position:relative;z-index:20;flex:0 0 auto;width:100%;max-width:none;height:calc(68px + env(safe-area-inset-top));min-height:calc(68px + env(safe-area-inset-top));padding:env(safe-area-inset-top) max(14px,env(safe-area-inset-right)) 0 max(14px,env(safe-area-inset-left))}
+#adminApp{flex:1 1 auto;min-width:0;width:100%;max-width:none;height:calc(100dvh - 68px - env(safe-area-inset-top));min-height:0;margin:0;overflow:hidden;display:flex;flex-direction:column}
+#adminApp[hidden]{display:none!important}
+#adminApp>.intro{flex:0 0 auto;min-width:0;width:100%;padding:14px 16px 10px;overflow:hidden}
+#adminApp>.intro h1{font-size:clamp(23px,6vw,34px);overflow-wrap:anywhere}
+#adminApp>.tabs{flex:0 0 auto;display:flex;flex-wrap:nowrap;gap:7px;width:100%;min-width:0;max-width:100%;padding:0 14px 12px;overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;scroll-snap-type:x proximity;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+#adminApp>.tabs::-webkit-scrollbar{display:none}
+#adminApp>.tabs button{flex:0 0 auto;width:auto;max-width:none;min-width:max-content;scroll-snap-align:start}
+#adminApp>.tab{flex:1 1 auto;min-width:0;width:100%;max-width:100%;min-height:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:0 14px calc(28px + env(safe-area-inset-bottom))}
+#adminApp>.tab[hidden]{display:none!important}
+#adminApp .columns,#adminApp .overview-columns,#adminApp .settings-grid{min-width:0;max-width:100%}
+#adminApp .panel{min-width:0;max-width:100%;overflow:hidden}
+#adminApp .panel input:not([type=checkbox]),#adminApp .panel textarea,#adminApp .panel select{display:block;width:100%;min-width:0;max-width:100%;font-size:16px!important}
+#adminApp input[type=time],#adminApp input[type=date]{width:100%;min-width:0;max-width:100%;-webkit-appearance:none;appearance:none}
+#adminApp .panel-heading{min-width:0;flex-wrap:wrap}
+#adminApp .panel-heading>*{min-width:0}
+#adminApp .item{min-width:0;overflow-wrap:anywhere}
+#adminApp .item-actions{min-width:0}
+#adminApp .item-actions button{width:auto;max-width:100%;min-width:44px}
+#adminApp .primary{max-width:100%;min-width:0}
+#authError{flex:0 0 auto;max-width:calc(100% - 28px);margin:18px auto;overflow-wrap:anywhere}
+.instructor-management{margin-top:16px}
+.instructor-dialog{position:fixed;inset:0;margin:auto;width:min(560px,calc(100% - 28px));max-width:100%;max-height:100dvh;height:max-content;overflow-y:auto;overflow-x:hidden;border:0;border-radius:20px;padding:0;overscroll-behavior:contain}
+.instructor-dialog::backdrop{background:#092c2a99;backdrop-filter:blur(4px)}
+.instructor-dialog form{width:100%;min-width:0;padding:22px;overflow:hidden}
+.instructor-dialog label{display:grid;gap:7px;margin:13px 0;color:#476168;font-size:13px;font-weight:750}
+.instructor-dialog input{width:100%;min-width:0;max-width:100%;min-height:48px;padding:12px;border:1px solid #dce7e2;border-radius:10px;background:#fff;color:#17343a;font-size:16px!important;-webkit-appearance:none;appearance:none}
+.instructor-dialog .dialog-head{gap:12px;min-width:0}
+.instructor-dialog .dialog-head>div{min-width:0}
+.instructor-dialog .dialog-head h2{overflow-wrap:anywhere}
+.password-field{display:flex;align-items:stretch;gap:7px;min-width:0}
+.password-field input{flex:1 1 auto;width:1%;min-width:0}
+.password-field button{flex:0 0 auto;width:auto;min-width:72px;padding:8px 10px;border:1px solid #dce7e2;border-radius:9px;background:#f5faf7;color:#087f73;font-size:12px;font-weight:800}
+.instructor-dialog .submit-wide{width:100%;min-height:48px}
+body.modal-open{overflow:hidden!important;touch-action:none}
+@media(max-width:760px){
+ .head{height:calc(62px + env(safe-area-inset-top));min-height:calc(62px + env(safe-area-inset-top));padding-left:12px;padding-right:12px}
+ .head a{max-width:35%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px}
+ .head div{min-width:0;flex:1}
+ .head button{width:auto;min-width:50px;padding:8px 10px}
+ #adminApp{height:calc(100dvh - 62px - env(safe-area-inset-top))}
+ #adminApp>.intro{padding:12px 13px 8px}
+ #adminApp>.intro p{font-size:12px;margin:5px 0}
+ #adminApp>.tabs{padding:0 12px 10px;gap:6px}
+ #adminApp>.tabs button{min-height:42px;padding:9px 13px;font-size:12px}
+ #adminApp>.tab{padding:0 12px calc(22px + env(safe-area-inset-bottom))}
+ #adminApp .panel{padding:14px;border-radius:14px}
+ #adminApp .overview-heading{gap:8px}
+ #adminApp .overview-heading .primary{width:100%}
+ #adminApp .panel-heading{align-items:flex-start;flex-direction:column}
+ #adminApp .panel-heading .outline{width:auto}
+ #adminApp .weekday-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+ #adminApp .settings-grid{grid-template-columns:minmax(0,1fr)}
+ #adminApp .columns,#adminApp .overview-columns{grid-template-columns:minmax(0,1fr)}
+ .instructor-dialog{inset:0;width:100%;height:100dvh;max-height:100dvh;border-radius:0}
+ .instructor-dialog form{padding:calc(18px + env(safe-area-inset-top)) 16px calc(20px + env(safe-area-inset-bottom))}
+}
+@media(max-width:390px){
+ .head a{font-size:10px;max-width:32%}
+ .head b{font-size:13px}
+ #adminApp>.intro h1{font-size:24px}
+ #adminApp .overview-stat{padding:11px}
+ #adminApp .overview-stat strong{font-size:25px}
+}

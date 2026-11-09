@@ -14,6 +14,17 @@ create table if not exists public.raul_kite_instructors (
 );
 create unique index if not exists raul_kite_instructors_email_lower_uidx on public.raul_kite_instructors(lower(email));
 create index if not exists raul_kite_instructors_owner_idx on public.raul_kite_instructors(owner_id);
+create index if not exists raul_kite_students_owner_id_idx on public.raul_kite_students(owner_id);
+create index if not exists raul_kite_students_auth_user_id_idx on public.raul_kite_students(auth_user_id);
+create index if not exists raul_kite_lessons_owner_id_idx on public.raul_kite_lessons(owner_id);
+create index if not exists raul_kite_lessons_student_id_idx on public.raul_kite_lessons(student_id);
+create index if not exists raul_kite_lesson_packages_owner_id_idx on public.raul_kite_lesson_packages(owner_id);
+create index if not exists raul_kite_lesson_types_owner_id_idx on public.raul_kite_lesson_types(owner_id);
+create index if not exists raul_kite_student_purchases_owner_id_idx on public.raul_kite_student_purchases(owner_id);
+create index if not exists raul_kite_student_purchases_student_id_idx on public.raul_kite_student_purchases(student_id);
+create index if not exists raul_kite_student_progress_owner_id_idx on public.raul_kite_student_progress(owner_id);
+create index if not exists raul_kite_student_credits_owner_id_idx on public.raul_kite_student_credits(owner_id);
+create index if not exists raul_kite_student_tips_owner_id_idx on public.raul_kite_student_tips(owner_id);
 alter table public.raul_kite_instructors enable row level security;
 grant select,insert,update,delete on public.raul_kite_instructors to authenticated;
 
